@@ -1,0 +1,122 @@
+
+    static void setup() {
+        try {
+            JSONArray jsonArray = new JSONArray("[\n"
+                                                        + "    {\n"
+                                                        + "        \"name\": \"setLoggingEnabled\",\n"
+                                                        + "        \"class\": {\n"
+                                                        + "            \"name\": \"io.bidmachine.BidMachine\",\n"
+                                                        + "            \"constructor\": []\n"
+                                                        + "        },\n"
+                                                        + "        \"parameters\": [\n"
+                                                        + "            {\n"
+                                                        + "                \"type\": \"java.lang.Boolean\",\n"
+                                                        + "                \"value\": true,\n"
+                                                        + "                \"isPrimitive\": true\n"
+                                                        + "            }\n"
+                                                        + "        ],\n"
+                                                        + "        \"modifier\": \"static\"\n"
+                                                        + "    },\n"
+                                                        + "    {\n"
+                                                        + "        \"name\": \"setTestMode\",\n"
+                                                        + "        \"class\": {\n"
+                                                        + "            \"name\": \"io.bidmachine.BidMachine\",\n"
+                                                        + "            \"constructor\": []\n"
+                                                        + "        },\n"
+                                                        + "        \"parameters\": [\n"
+                                                        + "            {\n"
+                                                        + "                \"type\": \"java.lang.Boolean\",\n"
+                                                        + "                \"value\": true,\n"
+                                                        + "                \"isPrimitive\": true\n"
+                                                        + "            }\n"
+                                                        + "        ],\n"
+                                                        + "        \"modifier\": \"static\"\n"
+                                                        + "    }\n"
+                                                        + "]");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject methodJsonObject = jsonArray.optJSONObject(i);
+                if (methodJsonObject == null) {
+                    continue;
+                }
+                String methodName = methodJsonObject.optString("name");
+                if (TextUtils.isEmpty(methodName)) {
+                    continue;
+                }
+                JSONObject classJsonObject = methodJsonObject.optJSONObject("class");
+                if (classJsonObject == null) {
+                    return;
+                }
+                String className = classJsonObject.optString("name");
+                if (TextUtils.isEmpty(className)) {
+                    continue;
+                }
+
+                Pair<List<Class<?>>, List<Object>> methodParametersPair =
+                        getParameterPair(methodJsonObject.optJSONArray("parameters"));
+                List<Class<?>> parameterTypeList = methodParametersPair.first;
+                List<Object> parameterValueList = methodParametersPair.second;
+
+                Class<?> clazz = Class.forName(className);
+                Method method = clazz.getMethod(methodName,
+                                                parameterTypeList.toArray(new Class<?>[0]));
+                method.setAccessible(true);
+                if (methodJsonObject.optString("modifier").equals("static")) {
+                    method.invoke(null, parameterValueList.toArray());
+                } else {
+                    Pair<List<Class<?>>, List<Object>> constructorParametersPair =
+                            getParameterPair(classJsonObject.optJSONArray("constructor"));
+                    List<Class<?>> constructorTypeList = constructorParametersPair.first;
+                    List<Object> constructorValueList = constructorParametersPair.second;
+
+                    Object classInstance = clazz
+                            .getConstructor(constructorTypeList.toArray(new Class<?>[0]))
+                            .newInstance(constructorValueList.toArray());
+                    method.invoke(classInstance, parameterValueList.toArray());
+                }
+            }
+        } catch (Throwable t) {
+            Log.w(TAG, t);
+        }
+    }
+
+    private static Pair<List<Class<?>>, List<Object>> getParameterPair(@Nullable JSONArray parameters) {
+        List<Class<?>> classList = new ArrayList<>();
+        List<Object> valueList = new ArrayList<>();
+        Pair<List<Class<?>>, List<Object>> pair = new Pair<>(classList, valueList);
+        if (parameters == null) {
+            return pair;
+        }
+
+        for (int j = 0; j < parameters.length(); j++) {
+            try {
+                JSONObject parameter = parameters.optJSONObject(j);
+                if (parameter == null) {
+                    continue;
+                }
+                String parameterType = parameter.optString("type");
+                if (TextUtils.isEmpty(parameterType)) {
+                    continue;
+                }
+                Object parameterValue = parameter.opt("value");
+                if (parameterValue == null) {
+                    continue;
+                }
+
+                Class<?> typeClass = Class.forName(parameterType);
+                boolean isPrimitive = parameter.optBoolean("isPrimitive", false);
+                if (isPrimitive) {
+                    try {
+                        typeClass = (Class<?>) typeClass.getDeclaredField("TYPE").get(null);
+                    } catch (Throwable t) {
+                        Log.w(TAG, t);
+                        continue;
+                    }
+                }
+                classList.add(typeClass);
+                valueList.add(parameterValue);
+            } catch (Throwable t) {
+                Log.w(TAG, t);
+            }
+        }
+        return pair;
+    }

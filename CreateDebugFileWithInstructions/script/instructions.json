@@ -1,0 +1,32 @@
+[
+  {
+    "name": "setLoggingEnabled",
+    "class": {
+      "name": "io.bidmachine.BidMachine",
+      "constructor": []
+    },
+    "parameters": [
+      {
+        "type": "java.lang.Boolean",
+        "value": true,
+        "isPrimitive": true
+      }
+    ],
+    "modifier": "static"
+  },
+  {
+    "name": "setTestMode",
+    "class": {
+      "name": "io.bidmachine.BidMachine",
+      "constructor": []
+    },
+    "parameters": [
+      {
+        "type": "java.lang.Boolean",
+        "value": true,
+        "isPrimitive": true
+      }
+    ],
+    "modifier": "static"
+  }
+]
