@@ -37,6 +37,8 @@ Sample:
 
 # Command
 
+### Push debug file
+
 ```commandline
 python3 'path_to_runnable' 'application_package'
 ```
@@ -45,6 +47,18 @@ Sample:
 
 ```commandline
 python3 script/runnable.py io.bidmachine.test.app
+```
+
+### Remove debug file
+
+```commandline
+python3 'path_to_runnable' 'application_package' --clear
+```
+
+Sample:
+
+```commandline
+python3 script/runnable.py io.bidmachine.test.app  --clear
 ```
 
 # Help
