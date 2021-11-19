@@ -12,7 +12,7 @@ ADB: str = HOME + "/Library/Android/sdk/platform-tools/adb"
 DEFAULT_EXTERNAL_DIR: str = "/sdcard"
 CURRENT_DIR_PATH: str = os.path.dirname(os.path.realpath(__file__))
 FEATURE_FILE_PATH: str = "files/features/DebugParameters.json"
-PARAMETERS: str = open("parameters.json").read()
+PARAMETERS: str = open("{}/parameters.json".format(CURRENT_DIR_PATH)).read()
 
 parser = argparse.ArgumentParser(description="Create debug file for test release app")
 parser.add_argument("package_name",
@@ -47,4 +47,4 @@ else:
              CURRENT_DIR_PATH, feature_file_full_path, PARAMETERS
          )])
 
-print("\nWork completed successful\n")
+print("\nWork completed\n")

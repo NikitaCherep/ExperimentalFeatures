@@ -12,7 +12,7 @@ ADB: str = HOME + "/Library/Android/sdk/platform-tools/adb"
 DEFAULT_EXTERNAL_DIR: str = "/sdcard"
 CURRENT_DIR_PATH: str = os.path.dirname(os.path.realpath(__file__))
 FEATURE_FILE_PATH: str = "files/features/DebugInstruction.json"
-PARAMETERS: str = open("instructions.json").read()
+INSTRUCTIONS: str = open("{}/instructions.json".format(CURRENT_DIR_PATH)).read()
 
 parser = argparse.ArgumentParser(description="Enable Test Mode in release app through file")
 parser.add_argument("package_name",
@@ -31,10 +31,10 @@ except Exception:
 package_name: str = args.package_name
 feature_file_full_path: str = "{}/Android/data/{}/{}".format(external_dir, package_name, FEATURE_FILE_PATH)
 
-print("\nWrite parameters into file ...")
+print("\nWrite instructions into file ...")
 run(["sh", "-c",
      "{}/write_content_to_file.sh {} '{}'".format(
-         CURRENT_DIR_PATH, feature_file_full_path, PARAMETERS
+         CURRENT_DIR_PATH, feature_file_full_path, INSTRUCTIONS
      )])
 
-print("\nWork completed successful\n")
+print("\nWork completed\n")
